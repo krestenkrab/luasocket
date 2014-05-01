@@ -428,7 +428,18 @@ const char *socket_gaistrerror(int err) {
 #ifdef EAI_SYSTEM
         case EAI_SYSTEM: return strerror(errno); 
 #endif
-        default: return gai_strerror(err);
+    default:
+#ifdef UNICODE
+	  {
+	    WCHAR *w_err = gai_strerror(err);
+	    size_t convertedChars = 0;
+	    static char c_err[1024];
+	    wcstombs_s(&convertedChars, c_err, 1024, w_err, wcslen(w_err));
+	    return c_err;
+	  }
+#else
+	  return gai_strerror(err);
+#endif
     }
 }
 
