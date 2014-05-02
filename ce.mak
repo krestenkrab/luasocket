@@ -61,7 +61,7 @@ MIME_OBJS = $(MIME_OBJS:.c=.obj)
 {src}.c{obj}.obj:
 	$(CC) $(CFLAGS) -c $<
 
-all: lib lib\socket.lib lib\mime.lib
+all: lib lib\luasocket.lib
 #	echo $(OBJS)
 
 obj:
@@ -80,10 +80,13 @@ clean:
 	@echo Deleting object files...
 	@del obj\*.obj
 
-lib\socket.lib: lib $(OBJS) makefile
-	link /nologo /out:lib/socket.dll $(LFLAGS) $(OBJS) $(CORELIBS)
+lib\socket\core.lib: lib $(OBJS) ce.mak
+	-@md lib\socket 2> NUL
+	link /nologo /out:lib/socket/core.dll $(LFLAGS) $(OBJS) $(CORELIBS)
 
-lib\mime.lib: lib $(OBJS) makefile
-	link /nologo /out:lib/mime.dll $(LFLAGS) $(OBJS) $(CORELIBS)
+lib\mime\core.lib: lib $(MIME_OBJS) ce.mak
+	-@md lib\mime 2> NUL
+	link /nologo /out:lib/mime/core.dll $(LFLAGS) $(MIME_OBJS) $(CORELIBS)
 
-
+lib\luasocket.lib: lib $(OBJS) $(MIME_OBJS) ce.mak
+	lib /nologo /out:lib\luasocket.lib $(OBJS) $(MIME_OBJS)
