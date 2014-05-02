@@ -96,7 +96,7 @@ static int base_open(lua_State *L) {
         lua_newtable(L);
         luaL_setfuncs(L, func, 0);
 #else
-        luaL_openlib(L, "socket", func, 0);
+        luaL_openlib(L, "socket.core", func, 0);
 #endif
 #ifdef LUASOCKET_DEBUG
         lua_pushstring(L, "_DEBUG");
