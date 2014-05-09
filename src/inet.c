@@ -12,6 +12,9 @@
 #include "inet.h"
 #include <errno.h>
 
+#undef errno
+#define errno (WSAGetLastError())
+
 /*=========================================================================*\
 * Internal function prototypes.
 \*=========================================================================*/
