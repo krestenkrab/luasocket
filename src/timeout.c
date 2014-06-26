@@ -122,14 +122,47 @@ p_timeout timeout_markstart(p_timeout tm) {
 *   time in s.
 \*-------------------------------------------------------------------------*/
 #ifdef _WIN32
-double timeout_gettime(void) {
+
+static double basetime()
+{
     FILETIME ft;
     double t;
-    GetSystemTimeAsFileTime(&ft);
+	GetSystemTimeAsFileTime(&ft);
     /* Windows file time (time since January 1, 1601 (UTC)) */
     t  = ft.dwLowDateTime/1.0e7 + ft.dwHighDateTime*(4294967296.0/1.0e7);
     /* convert to Unix Epoch time (time since January 1, 1970 (UTC)) */
     return (t - 11644473600.0);
+}
+
+static DWORD tick_base;
+
+static void sync_time()
+{
+	DWORD ticks;
+	double now;
+	double start = floor(basetime());
+	while(true) 
+	{
+		tics = GetTickCount();
+		now = floor(basetime());
+		if (now != start) {
+			tick_base = ticks;
+			break;
+		}
+	}
+}
+
+double timeout_gettime(void) {
+	double now1 = basetime();
+	DWORD ticks = GetTickCount();
+
+	if (floor(basetime()) != floor(now1)) {
+		tick_base = ticks;
+	}
+
+	last_tics = tics;
+	DWORD millis = ( tick_base - ticks ) % 1000;
+	return now1 + (millis / 1.0e3);
 }
 #else
 double timeout_gettime(void) {
